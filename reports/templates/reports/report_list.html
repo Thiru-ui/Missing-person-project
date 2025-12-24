@@ -1,0 +1,77 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}Search Missing Persons{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Search Missing Persons</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    {{ form.query }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.status }}
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for report in reports %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card missing-person-card">
+                    {% if report.photo %}
+                        <img src="{{ report.photo.url }}" class="card-img-top" alt="{{ report.full_name }}">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <i class="fas fa-user fa-5x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ report.full_name }}</h5>
+                            <span class="badge bg-{{ report.get_status_badge_class }}">
+                                {{ report.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-2">Case: {{ report.case_number }}</p>
+                        <p class="card-text">
+                            <strong>Age:</strong> {{ report.age }} | <strong>Gender:</strong> {{ report.get_gender_display }}<br>
+                            <strong>Last Seen:</strong> {{ report.last_seen_date|date:"M d, Y" }}<br>
+                            <strong>Location:</strong> {{ report.last_seen_location|truncatewords:5 }}
+                        </p>
+                        <a href="{% url 'report_detail' report.case_number %}" class="btn btn-primary w-100 mb-2">
+                            View Full Details
+                        </a>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="quickShare('{{ request.scheme }}://{{ request.get_host }}{% url 'report_detail' report.case_number %}', '{{ report.full_name }}', 'facebook')" title="Share on Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="quickShare('{{ request.scheme }}://{{ request.get_host }}{% url 'report_detail' report.case_number %}', '{{ report.full_name }}', 'twitter')" title="Share on Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="quickShare('{{ request.scheme }}://{{ request.get_host }}{% url 'report_detail' report.case_number %}', '{{ report.full_name }}', 'whatsapp')" title="Share on WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>No missing persons found matching your criteria.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

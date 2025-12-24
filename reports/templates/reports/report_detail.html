@@ -1,0 +1,147 @@
+{% extends 'reports/base.html' %}
+
+{% block title %}{{ report.full_name }} - Missing Person{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            {% if report.photo %}
+                <img src="{{ report.photo.url }}" class="img-fluid rounded shadow" alt="{{ report.full_name }}">
+            {% else %}
+                <div class="bg-secondary d-flex align-items-center justify-content-center rounded shadow" style="height: 400px;">
+                    <i class="fas fa-user fa-10x text-white"></i>
+                </div>
+            {% endif %}
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Case Information</h5>
+                    <p class="mb-1"><strong>Case Number:</strong> {{ report.case_number }}</p>
+                    <p class="mb-1"><strong>Status:</strong> 
+                        <span class="badge bg-{{ report.get_status_badge_class }}">{{ report.get_status_display }}</span>
+                    </p>
+                    <p class="mb-1"><strong>Reported:</strong> {{ report.reported_date|date:"M d, Y" }}</p>
+                    {% if report.police_notified %}
+                        <p class="mb-0"><strong>Police Case:</strong> {{ report.police_case_number|default:"Yes" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-share-alt me-2"></i>Help Spread the Word</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">Share this case to help locate {{ report.full_name }}</p>
+                    {% url 'report_detail' report.case_number as detail_url %}
+                    <div class="d-grid gap-2">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn btn-primary">
+                            <i class="fab fa-facebook-f me-2"></i>Share on Facebook
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text=Help find {{ report.full_name }}. Every share counts!" target="_blank" class="btn btn-info text-white">
+                            <i class="fab fa-twitter me-2"></i>Share on Twitter
+                        </a>
+                        <a href="https://wa.me/?text=Help find {{ report.full_name }}. Every share counts! {{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn btn-success">
+                            <i class="fab fa-whatsapp me-2"></i>Share on WhatsApp
+                        </a>
+                        <a href="mailto:?subject=Help Find {{ report.full_name }}&body=Please help find {{ report.full_name }}. View details here: {{ request.build_absolute_uri }}" class="btn btn-danger">
+                            <i class="fas fa-envelope me-2"></i>Share via Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <h1>{{ report.full_name }}</h1>
+            <p class="lead text-muted">Missing since {{ report.last_seen_date|date:"F d, Y" }}</p>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Description</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Age:</strong> {{ report.age }} years old</p>
+                            <p><strong>Gender:</strong> {{ report.get_gender_display }}</p>
+                            <p><strong>Height:</strong> {{ report.height_cm }} cm</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Weight:</strong> {{ report.weight_kg }} kg</p>
+                            <p><strong>Eye Color:</strong> {{ report.eye_color }}</p>
+                            <p><strong>Hair Color:</strong> {{ report.hair_color }}</p>
+                        </div>
+                    </div>
+                    {% if report.distinguishing_features %}
+                        <p><strong>Distinguishing Features:</strong><br>{{ report.distinguishing_features }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Last Known Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Last Seen:</strong> {{ report.last_seen_date|date:"F d, Y \a\t g:i A" }}</p>
+                    <p><strong>Location:</strong> {{ report.last_seen_location }}</p>
+                    <p><strong>Wearing:</strong> {{ report.last_seen_wearing }}</p>
+                    <p><strong>Circumstances:</strong><br>{{ report.circumstances }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-phone me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Reporter:</strong> {{ report.reporter_name }} ({{ report.reporter_relationship }})</p>
+                    <p class="mb-1"><strong>Phone:</strong> {{ report.reporter_phone }}</p>
+                    <p class="mb-0"><strong>Email:</strong> {{ report.reporter_email }}</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Reported Sightings ({{ sightings.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if sightings %}
+                        {% for sighting in sightings %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>{{ sighting.sighting_date|date:"M d, Y g:i A" }}</strong>
+                                    {% if sighting.verified %}
+                                        <span class="badge bg-success">Verified</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Unverified</span>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-1"><strong>Location:</strong> {{ sighting.location }}</p>
+                                <p class="mb-0">{{ sighting.description }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">No sightings reported yet.</p>
+                    {% endif %}
+                    
+                    <button class="btn btn-warning mt-3" data-bs-toggle="collapse" data-bs-target="#sightingForm">
+                        <i class="fas fa-plus-circle me-1"></i>Report a Sighting
+                    </button>
+                    
+                    <div class="collapse mt-3" id="sightingForm">
+                        <div class="card">
+                            <div class="card-body">
+                                {% load crispy_forms_tags %}
+                                {% crispy sighting_form %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

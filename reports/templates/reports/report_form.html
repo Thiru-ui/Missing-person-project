@@ -1,0 +1,25 @@
+{% extends 'reports/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Report Missing Person{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Report a Missing Person</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> If this is an emergency, please contact local authorities immediately at emergency services.
+                    </div>
+                    
+                    {% crispy form %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

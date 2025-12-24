@@ -1,0 +1,106 @@
+{% extends 'reports/base.html' %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-4 mb-4">Help Bring Them Home</h1>
+        <p class="lead mb-4">Every second counts. Report a missing person or help us find someone.</p>
+        <div class="row justify-content-center g-4 mt-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-number">{{ total_missing }}</div>
+                    <div class="text-muted">Currently Missing</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-number text-success">{{ total_found }}</div>
+                    <div class="text-muted">Found Safe</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h2>Recent Missing Persons</h2>
+            <p class="text-muted">Help us locate these individuals</p>
+        </div>
+    </div>
+
+    {% if recent_reports %}
+        <div class="row g-4">
+            {% for report in recent_reports %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card missing-person-card">
+                        {% if report.photo %}
+                            <img src="{{ report.photo.url }}" class="card-img-top" alt="{{ report.full_name }}">
+                        {% else %}
+                            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <i class="fas fa-user fa-5x text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ report.full_name }}</h5>
+                            <p class="card-text">
+                                <strong>Age:</strong> {{ report.age }}<br>
+                                <strong>Last Seen:</strong> {{ report.last_seen_date|date:"M d, Y" }}<br>
+                                <strong>Location:</strong> {{ report.last_seen_location|truncatewords:5 }}
+                            </p>
+                            <span class="badge bg-{{ report.get_status_badge_class }} status-badge mb-3">
+                                {{ report.get_status_display }}
+                            </span>
+                            <a href="{% url 'report_detail' report.case_number %}" class="btn btn-primary w-100 mb-2">
+                                View Details
+                            </a>
+                            <div class="btn-group w-100" role="group">
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.scheme }}://{{ request.get_host }}{% url 'report_detail' report.case_number %}" target="_blank" class="btn btn-outline-secondary btn-sm" title="Share on Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url={{ request.scheme }}://{{ request.get_host }}{% url 'report_detail' report.case_number %}&text=Help find {{ report.full_name }}" target="_blank" class="btn btn-outline-secondary btn-sm" title="Share on Twitter">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="https://wa.me/?text=Help find {{ report.full_name }} {{ request.scheme }}://{{ request.get_host }}{% url 'report_detail' report.case_number %}" target="_blank" class="btn btn-outline-secondary btn-sm" title="Share on WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle me-2"></i>No missing persons reports currently in the system.
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{% url 'report_list' %}" class="btn btn-outline-primary btn-lg">View All Cases</a>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 text-center mb-4">
+                <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                <h4>Report Missing</h4>
+                <p>If someone is missing, report it immediately to help locate them quickly.</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <i class="fas fa-eye fa-3x text-primary mb-3"></i>
+                <h4>Report Sighting</h4>
+                <p>Seen someone from our registry? Submit a sighting to help reunite them.</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <i class="fas fa-share-alt fa-3x text-success mb-3"></i>
+                <h4>Share Information</h4>
+                <p>Spread awareness by sharing cases on social media platforms.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
